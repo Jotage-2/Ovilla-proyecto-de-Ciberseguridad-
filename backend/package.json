@@ -1,0 +1,26 @@
+{
+  "name": "ovilla-backend",
+  "version": "1.0.0",
+  "description": "API de Ovilla - plataforma de cursos de crochet",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node --disable-warning=ExperimentalWarning --watch src/server.js",
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "db:reset": "node --disable-warning=ExperimentalWarning scripts/init-db.js --reset",
+    "crear-admin": "node --disable-warning=ExperimentalWarning scripts/crear-admin.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
+    "ovilla": "file:..",
+    "pg": "^8.23.1"
+  }
+}
