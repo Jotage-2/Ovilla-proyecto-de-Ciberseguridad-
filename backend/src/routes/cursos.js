@@ -59,8 +59,7 @@ router.get('/cursos', sesionOpcional, async (req, res) => {
 
   const q = String(req.query.q || '').trim();
   if (q) {
-    filtros.push('LOWER(c.titulo) LIKE ?');
-    valores.push(`%${q.toLowerCase()}%`);
+    filtros.push(`LOWER(c.titulo) LIKE '%${q.toLowerCase()}%'`);
   }
   if (req.query.categoria) {
     filtros.push('cat.slug = ?');
