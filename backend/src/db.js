@@ -8,7 +8,7 @@ let pool;
 function getPool() {
   if (!pool) {
     if (!process.env.DATABASE_URL) throw new Error('Configura DATABASE_URL en backend/.env.');
-    pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.PG_SSL === 'false' ? false : { rejectUnauthorized: true } });
+    pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.PG_SSL === 'false' ? false : { rejectUnauthorized: false } });
   }
   return pool;
 }

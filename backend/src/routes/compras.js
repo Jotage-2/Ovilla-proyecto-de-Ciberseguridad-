@@ -43,7 +43,6 @@ router.post('/', requiereSesion, async (req, res) => {
   });
 });
 
-// GET /api/compras/mis-cursos
 router.get('/mis-cursos', requiereSesion, async (req, res) => {
   const filas = await getDb()
     .prepare(`
@@ -62,6 +61,24 @@ router.get('/mis-cursos', requiereSesion, async (req, res) => {
 
   const compradas = new Set(filas.map((f) => f.id));
   res.json(filas.map((f) => formatearCurso(f, compradas)));
+});
+
+router.get('/:id', requiereSesion, async (req, res) => {
+  const compra = await getDb()
+    .prepare(`
+      SELECT co.id, co.usuario_id, co.curso_id, co.monto, co.metodo,
+             co.referencia, co.creado_en,
+             u.nombre AS cliente_nombre, u.email AS cliente_email,
+             c.titulo AS curso_titulo
+      FROM compras co
+      JOIN usuarios u ON u.id = co.usuario_id
+      JOIN cursos c   ON c.id = co.curso_id
+      WHERE co.id = ?
+    `)
+    .get(Number(req.params.id));
+
+  if (!compra) return res.status(404).json({ error: 'Compra no encontrada.' });
+  res.json(compra);
 });
 
 export default router;
