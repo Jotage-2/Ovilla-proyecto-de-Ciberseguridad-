@@ -1,6 +1,6 @@
 // Rutas de registro, inicio de sesión y usuario actual
 import { Router } from 'express';
-import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import { getDb } from '../db.js';
 import { crearToken, requiereSesion } from '../middleware/auth.js';
 
@@ -26,7 +26,10 @@ router.post('/registro', async (req, res) => {
     return res.status(409).json({ error: 'Ya existe una cuenta con ese correo.' });
   }
 
-  const hash = bcrypt.hashSync(password, 10);
+  const hash = crypto
+    .createHash('sha256')
+    .update(password, 'utf8')
+    .digest('hex');
   const r = await db
     .prepare("INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES (?, ?, ?, 'cliente')")
     .run(nombre, email, hash);
@@ -41,7 +44,12 @@ router.post('/login', async (req, res) => {
   const password = String(req.body?.password || '');
 
   const usuario = await getDb().prepare('SELECT * FROM usuarios WHERE email = ?').get(email);
-  if (!usuario || !bcrypt.compareSync(password, usuario.password_hash)) {
+  const hashIngresado = crypto
+    .createHash('sha256')
+    .update(password, 'utf8')
+    .digest('hex');
+
+  if (!usuario || hashIngresado !== usuario.password_hash) {
     return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
   }
   res.json({ token: crearToken(usuario), usuario: usuarioPublico(usuario) });

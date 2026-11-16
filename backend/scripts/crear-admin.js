@@ -2,7 +2,7 @@
 // Uso (desde la carpeta ovilla):
 //   npm run crear-admin -- tucorreo@ejemplo.com TuContraseña "Tu Nombre"
 import 'dotenv/config';
-import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import { getDb, closeDatabase } from '../src/db.js';
 
 const [email, password, ...resto] = process.argv.slice(2);
@@ -19,7 +19,10 @@ if (password.length < 6) {
 
 const db = getDb();
 const correo = email.trim().toLowerCase();
-const hash = bcrypt.hashSync(password, 10);
+const hash = crypto
+  .createHash('sha256')
+  .update(password, 'utf8')
+  .digest('hex');
 const existe = await db.prepare('SELECT id FROM usuarios WHERE email = ?').get(correo);
 
 if (existe) {
