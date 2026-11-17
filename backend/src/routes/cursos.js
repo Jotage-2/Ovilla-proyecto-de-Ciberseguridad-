@@ -82,10 +82,13 @@ router.get('/cursos/:id', sesionOpcional, async (req, res) => {
   if (!curso) return res.status(404).json({ error: 'Curso no encontrado.' });
 
   const acceso = await tieneAcceso(req.usuario, curso);
+  const modoVulnerableLab =
+    process.env.PREMIUM_LAB_VULNERABLE === 'true' &&
+    process.env.NODE_ENV !== 'production';
   const lecciones = (await db
     .prepare('SELECT id, orden, titulo, contenido, video_url FROM lecciones WHERE curso_id = ? ORDER BY orden, id')
     .all(curso.id))
-    .map((l) => (acceso ? l : { id: l.id, orden: l.orden, titulo: l.titulo, bloqueada: true }));
+    .map((l) => (acceso || modoVulnerableLab ? l : { id: l.id, orden: l.orden, titulo: l.titulo, bloqueada: true }));
 
   res.json({ ...formatearCurso(curso, await comprasDe(req.usuario)), acceso, lecciones });
 });
